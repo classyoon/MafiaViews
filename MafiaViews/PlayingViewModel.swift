@@ -1,13 +1,12 @@
 //
-//  HeaderView.swift
+//  PlayingViewModel.swift
 //  MafiaViews
 //
-//  Created by Conner Yoon on 4/15/25.
+//  Created by Conner Yoon on 4/21/25.
 //
 
-import SwiftUI
-
-class ViewModel : ObservableObject {
+import Foundation
+class PlayingViewModel : ObservableObject {
     var time : GameLabelState = .day
     var currentTeam : TeamText = .mafia
     var currentRole : RoleText = .mafia
@@ -31,25 +30,16 @@ class ViewModel : ObservableObject {
             "Whoever you pick you will be protected"
         }
     }
-}
-
-
-
-struct HeaderView: View {
-    var vm : ViewModel = ViewModel()
-    var body: some View {
-        VStack{
-            Text(vm.time.rawValue.uppercased())
-                .kerning(10.0)
-                .font(.system(.largeTitle, design: .serif, weight: .black))
-                .padding()
-            Text("You are the \(vm.currentTeam.rawValue.capitalized)")
-            Divider()
-            Text(vm.instructions.uppercased())
+    var roleText : String {
+        switch currentRole {
+        case .mafia:
+            "Kill"
+        case .townsfolk:
+            "Sleep"
+        case .detective:
+            "Investigate"
+        case .doctor:
+            "Protect"
         }
     }
-}
-
-#Preview {
-    HeaderView()
 }
