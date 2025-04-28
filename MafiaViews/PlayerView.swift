@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlayerView: View {
+    var player : String
     var body: some View {
         VStack {
             Image("DefaultIcon")
@@ -18,11 +19,11 @@ struct PlayerView: View {
                 .clipped()
                 .mask { RoundedRectangle(cornerRadius: 44, style: .continuous) }
                 .padding()
-            Text("Hi")
+            Text(player)
         }
     }
 }
 
 #Preview {
-    PlayerView()
+    PlayerView(player: "Sam")
 }

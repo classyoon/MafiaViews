@@ -5,17 +5,19 @@
 //  Created by Conner Yoon on 4/15/25.
 //
 
+
 import SwiftUI
 struct PlayingView: View {
     var vm : PlayingViewModel = PlayingViewModel()
+    private var chosen : Int = 0
     var body: some View {
 		VStack {
             VStack{
-                Text(vm.time.rawValue.uppercased())
+                Text(vm.timeText.uppercased())
                     .kerning(10.0)
                     .font(.system(.largeTitle, design: .serif, weight: .black))
                     .padding()
-                Text("You are the \(vm.currentTeam.rawValue.capitalized)")
+                Text("You are the \(vm.roleText.capitalized)")
                 Divider()
                 Text(vm.instructions.uppercased())
             }
@@ -24,9 +26,9 @@ struct PlayingView: View {
             ScrollView {
                 // PlayerGrid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-                    ForEach(0..<5) { _ in // Replace with your data model here
+                    ForEach(0..<4) { chosen in // Replace with your data model here
                         // PlayerNotes
-                        PlayerFullView()
+                        PlayerFullView(player: vm.players[chosen])
                     }
                 }
             }
@@ -35,7 +37,7 @@ struct PlayingView: View {
 			// Chosen
             HStack {
                 // PlayerNotes
-                PlayerFullView()
+                PlayerFullView(player: vm.players[chosen])
                 // Action
                 Capsule(style: .continuous)
                     .fill(.red)
@@ -43,7 +45,7 @@ struct PlayingView: View {
                     .clipped()
                     .padding()
                     .overlay {
-                        Text(vm.roleText)
+                        Text(vm.actionText)
                             .foregroundStyle(.primary)
                     }
             }

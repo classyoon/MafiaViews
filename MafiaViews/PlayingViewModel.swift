@@ -6,12 +6,35 @@
 //
 
 import Foundation
-class PlayingViewModel : ObservableObject {
+class Player {
+    var name : String
+    var role : RoleText
+    init(_ name: String = "Default Steve", _ role: RoleText = .townsfolk) {
+        self.name = name
+        self.role = role
+    }
+}
+class Game {
     var time : GameLabelState = .day
     var currentTeam : TeamText = .mafia
+}
+class PlayingViewModel : ObservableObject {
+    var time : GameLabelState = .day
     var currentRole : RoleText = .mafia
+    var gameModel : Game = Game()
+    var players : [Player] = [Player("Joe"),Player("Sam"), Player("Not Killer", .mafia), Player("Yolo"), Player("Funny")]
+    var playerInt : Int? = nil
+    var player : Player? {
+        players[playerInt ?? 0]
+    }
+    var timeText : String {
+        gameModel.time.rawValue
+    }
+    var roleText : String {
+        gameModel.currentTeam.rawValue
+    }
     var instructions : String {
-        switch currentTeam {
+        switch gameModel.currentTeam {
         case .mafia:
             "Try to kill off the townsfolk without being caught"
         case .townsfolk:
@@ -30,7 +53,7 @@ class PlayingViewModel : ObservableObject {
             "Whoever you pick you will be protected"
         }
     }
-    var roleText : String {
+    var actionText : String {
         switch currentRole {
         case .mafia:
             "Kill"

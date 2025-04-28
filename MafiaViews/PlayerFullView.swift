@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct PlayerFullView: View {
+    var player : String
     var body: some View {
         // PlayerNotes
         HStack {
             // PlayerView
-            PlayerView()
+            PlayerView(player: player)
             .padding()
             // Notes
             Text("Hello, World!")
@@ -21,5 +22,5 @@ struct PlayerFullView: View {
 }
 
 #Preview {
-    PlayerFullView()
+    PlayerFullView(player: "Joe")
 }
