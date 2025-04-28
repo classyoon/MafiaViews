@@ -26,7 +26,11 @@ struct PlayingView: View {
                 // PlayerGrid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
                     ForEach(vm.players)  { cplayer in
-                        PlayerFullView(player: cplayer)
+                        Button {
+                            print("\(cplayer.name) pressed")
+                        } label : {
+                            PlayerFullView(player: cplayer)
+                        }
                     }
                 }
             }
@@ -37,15 +41,21 @@ struct PlayingView: View {
                 // PlayerNotes
                 PlayerFullView(player: vm.player ?? Player())
                 // Action
-                Capsule(style: .continuous)
-                    .fill(.red)
-                    .frame(width: 70, height: 50)
-                    .clipped()
-                    .padding()
-                    .overlay {
-                        Text(vm.actionText)
-                            .foregroundStyle(.primary)
-                    }
+                Button {
+                    print("Button pressed")
+                } label: {
+                    Capsule(style: .continuous)
+                        .fill(.red)
+                        .frame(width: 70, height: 50)
+                        .clipped()
+                        .padding()
+                        .overlay {
+                            Text(vm.actionText)
+                                .foregroundStyle(.primary)
+                        }
+
+                }
+
             }
 		}
     }
