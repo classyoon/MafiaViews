@@ -14,7 +14,7 @@ enum RoleText : String {
     case mafia
     case detective
     case doctor
-    case townsfolk
+    case townsperson
 }
 enum TeamText : String {
     case mafia

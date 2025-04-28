@@ -9,7 +9,6 @@
 import SwiftUI
 struct PlayingView: View {
     var vm : PlayingViewModel = PlayingViewModel()
-    private var chosen : Int = 0
     var body: some View {
 		VStack {
             VStack{
@@ -17,7 +16,7 @@ struct PlayingView: View {
                     .kerning(10.0)
                     .font(.system(.largeTitle, design: .serif, weight: .black))
                     .padding()
-                Text("You are the \(vm.roleText.capitalized)")
+                Text("Hi \( vm.player!.name). You are a \(vm.roleText.capitalized)")
                 Divider()
                 Text(vm.instructions.uppercased())
             }
@@ -26,9 +25,8 @@ struct PlayingView: View {
             ScrollView {
                 // PlayerGrid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-                    ForEach(0..<4) { chosen in // Replace with your data model here
-                        // PlayerNotes
-                        PlayerFullView(player: vm.players[chosen])
+                    ForEach(vm.players)  { cplayer in
+                        PlayerFullView(player: cplayer)
                     }
                 }
             }
@@ -37,7 +35,7 @@ struct PlayingView: View {
 			// Chosen
             HStack {
                 // PlayerNotes
-                PlayerFullView(player: vm.players[chosen])
+                PlayerFullView(player: vm.player ?? Player())
                 // Action
                 Capsule(style: .continuous)
                     .fill(.red)

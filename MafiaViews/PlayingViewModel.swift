@@ -6,10 +6,11 @@
 //
 
 import Foundation
-class Player {
+struct Player : Identifiable {
     var name : String
     var role : RoleText
-    init(_ name: String = "Default Steve", _ role: RoleText = .townsfolk) {
+    var id : UUID = UUID()
+    init(_ name: String = "Default Steve", _ role: RoleText = .townsperson) {
         self.name = name
         self.role = role
     }
@@ -23,7 +24,7 @@ class PlayingViewModel : ObservableObject {
     var currentRole : RoleText = .mafia
     var gameModel : Game = Game()
     var players : [Player] = [Player("Joe"),Player("Sam"), Player("Not Killer", .mafia), Player("Yolo"), Player("Funny")]
-    var playerInt : Int? = nil
+    var playerInt : Int? = 1
     var player : Player? {
         players[playerInt ?? 0]
     }
@@ -31,38 +32,54 @@ class PlayingViewModel : ObservableObject {
         gameModel.time.rawValue
     }
     var roleText : String {
-        gameModel.currentTeam.rawValue
-    }
-    var instructions : String {
-        switch gameModel.currentTeam {
+        switch player?.role {
         case .mafia:
-            "Try to kill off the townsfolk without being caught"
-        case .townsfolk:
-            "Try to catch the mafia before they kill everyone"
+            TeamText.mafia.rawValue
+        case .detective, .doctor, .townsperson:
+            TeamText.townsfolk.rawValue
+        case nil:
+            "No TEAM"
         }
     }
-    var rolePowers : String {
-        switch currentRole {
+    var instructions : String {
+        switch player?.role {
         case .mafia:
-            "Whoever you pick dies"
-        case .townsfolk:
-            "You have no powers"
+            "Kill off the townsfolk without being caught"
+        case .detective, .doctor, .townsperson:
+            "Catch the mafia before they kill everyone"
+        case nil:
+            "No TEAM Text"
+        }
+    }
+    var role : RoleText? {
+        player?.role
+    }
+    var rolePowers : String {
+        switch role {
+        case .mafia:
+            "Whoever you pick, you will kill unless they are saved"
+        case .townsperson:
+            "You have no powers. Visiting has no affect."
         case .detective:
             "Whoever you pick you learn the role of"
         case .doctor:
             "Whoever you pick you will be protected"
+        case nil :
+            "No action"
         }
     }
     var actionText : String {
-        switch currentRole {
+        switch role {
         case .mafia:
             "Kill"
-        case .townsfolk:
-            "Sleep"
+        case .townsperson:
+            "Visit"
         case .detective:
             "Investigate"
         case .doctor:
             "Protect"
+        case nil :
+            "No action text"
         }
     }
 }
