@@ -13,8 +13,13 @@ struct PlayerFullView: View {
         // PlayerNotes
         HStack {
             // PlayerView
-            PlayerView(player: player.name)
-            .padding()
+            Button {
+                print("\(player.name) pressed")
+            } label : {
+                PlayerView(player: player.name)
+                .padding()
+            }
+           
             // Notes
             Text("Hello, World!")
         }

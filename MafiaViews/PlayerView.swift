@@ -11,6 +11,7 @@ struct PlayerView: View {
     var player : String
     var body: some View {
         VStack {
+            
             Image("DefaultIcon")
                 .renderingMode(.original)
                 .resizable()

@@ -9,8 +9,9 @@
 import SwiftUI
 struct PlayingView: View {
     var vm : PlayingViewModel = PlayingViewModel()
+    @State private var player : Player? = nil
     var body: some View {
-		VStack {
+        VStack {
             VStack{
                 Text(vm.timeText.uppercased())
                     .kerning(10.0)
@@ -20,26 +21,22 @@ struct PlayingView: View {
                 Divider()
                 Text(vm.instructions.uppercased())
             }
-			Spacer()
-			// PlayersView
+            Spacer()
+            // PlayersView
             ScrollView {
                 // PlayerGrid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
                     ForEach(vm.players)  { cplayer in
-                        Button {
-                            print("\(cplayer.name) pressed")
-                        } label : {
-                            PlayerFullView(player: cplayer)
-                        }
+                        PlayerFullView(player: cplayer)
                     }
                 }
             }
             Text(vm.rolePowers)
-			Divider()
-			// Chosen
+            Divider()
+            // Chosen
             HStack {
                 // PlayerNotes
-                PlayerFullView(player: vm.player ?? Player())
+                PlayerView(player: player?.name ?? "Nobody selected")
                 // Action
                 Button {
                     print("Button pressed")
@@ -53,11 +50,11 @@ struct PlayingView: View {
                             Text(vm.actionText)
                                 .foregroundStyle(.primary)
                         }
-
+                    
                 }
-
+                
             }
-		}
+        }
     }
 }
 
