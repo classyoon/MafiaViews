@@ -21,7 +21,12 @@ struct PlayerFullView: View {
             }
            
             // Notes
-            Text("Hello, World!")
+            VStack{
+                Text("Private Notes. They disappear when you die.")
+                TextField("Notes", text: .constant(""))
+                    .padding()
+            }
+            
         }
     }
 }

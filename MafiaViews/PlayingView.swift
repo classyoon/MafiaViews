@@ -8,25 +8,44 @@
 
 import SwiftUI
 struct PlayingView: View {
-    var vm : PlayingViewModel = PlayingViewModel()
-    @State private var player : Player? = nil
+    var vm : PlayingViewModel = PlayingViewModel(time: .day)
+        
+    @State private var player : Player?
+    var headerText : String {
+        var starter = "Hi \( vm.player!.name), you are a \(vm.player!.role.rawValue.capitalized)!"
+        if vm.time == .night {
+            starter += " It is night time."
+        }else {
+            starter += " It is day time."
+        }
+        return starter
+    }
+    var instructorText : String {
+        if vm.time == .day {
+            return "Try convince others to vote in a way that furthers your teams intrests."
+        }
+        return vm.instructions.uppercased()
+    }
     var body: some View {
         VStack {
             VStack{
                 Text(vm.timeText.uppercased())
+                    .lineLimit(nil)
                     .kerning(10.0)
                     .font(.system(.largeTitle, design: .serif, weight: .black))
-                    .padding()
-                Text("Hi \( vm.player!.name). You are a \(vm.roleText.capitalized)")
+                Text(headerText)
+                
+                
+                    
                 Divider()
-                Text(vm.instructions.uppercased())
+                    Text(instructorText)
             }
             Spacer()
             // PlayersView
             ScrollView {
                 // PlayerGrid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-                    ForEach(vm.players)  { cplayer in
+                    ForEach(vm.showPlayers)  { cplayer in
                         PlayerFullView(player: cplayer)
                     }
                 }
@@ -36,18 +55,39 @@ struct PlayingView: View {
             // Chosen
             HStack {
                 // PlayerNotes
-                PlayerView(player: player?.name ?? "Nobody selected")
-                // Action
+                if let p = player {
+                    PlayerView(player: p.name)
+                    // Action
+                    Button {
+                        print("Button pressed")
+                    } label: {
+                        Capsule(style: .continuous)
+                            .fill(.red)
+                            .frame(width: 70, height: 50)
+                            .clipped()
+                            .padding()
+                            .overlay {
+                                Text(vm.actionText)
+                                    .foregroundStyle(.primary)
+                            }
+                        
+                    }
+                    
+                }
+                else {
+                    Text("Tap on a player icon to select them.").padding()
+                   Spacer()
+                }
                 Button {
                     print("Button pressed")
                 } label: {
                     Capsule(style: .continuous)
-                        .fill(.red)
+                        .fill(.yellow)
                         .frame(width: 70, height: 50)
                         .clipped()
                         .padding()
                         .overlay {
-                            Text(vm.actionText)
+                            Text("Skip")
                                 .foregroundStyle(.primary)
                         }
                     
