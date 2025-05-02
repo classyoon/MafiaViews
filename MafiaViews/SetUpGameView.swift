@@ -19,6 +19,7 @@ import SwiftUI
 struct SetUpGameView: View {
     var body: some View {
 		VStack {
+         
 			Text("create game".uppercased())
 				.kerning(10.0)
 				.font(.system(.largeTitle, design: .serif, weight: .black))
@@ -28,11 +29,21 @@ struct SetUpGameView: View {
 			// Settings
 			VStack {
 				// Confirm Buttons
-				HStack {
-					Spacer()
-					Text("Default")
-					Spacer()
-					Text("Guess")
+                HStack {
+                    Spacer()
+                    Button {
+                        print("Setting default distribution of roles")
+                    } label: {
+                        Text("Default")
+                    }
+                    
+                    Spacer()
+                    Button {
+                        print("Setting random (within reason) distribution of roles")
+                    } label: {
+                        Text("Guess")
+                    }
+					
 					Spacer()
 				}
 				// Doctors

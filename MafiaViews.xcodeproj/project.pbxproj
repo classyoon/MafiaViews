@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CA3708CC2DC5768000488264 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CA3708CB2DC5768000488264 /* .gitignore */; };
+		CA3708D52DC577E300488264 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = CA3708D42DC577E300488264 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 
 /* Begin PBXFileReference section */
 		CA3708CB2DC5768000488264 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		CA3708D42DC577E300488264 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CA9982F32DAEB47800A1B53C /* MafiaViews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MafiaViews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA9983012DAEB47B00A1B53C /* MafiaViewsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MafiaViewsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA99830B2DAEB47B00A1B53C /* MafiaViewsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MafiaViewsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -81,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				CA3708CB2DC5768000488264 /* .gitignore */,
+				CA3708D42DC577E300488264 /* README.md */,
 				CA9982F52DAEB47800A1B53C /* MafiaViews */,
 				CA9983042DAEB47B00A1B53C /* MafiaViewsTests */,
 				CA99830E2DAEB47B00A1B53C /* MafiaViewsUITests */,
@@ -218,6 +221,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA3708D52DC577E300488264 /* README.md in Resources */,
 				CA3708CC2DC5768000488264 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
