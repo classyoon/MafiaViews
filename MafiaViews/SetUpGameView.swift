@@ -20,18 +20,42 @@ struct SetUpGameView: View {
             
             Divider()
             
-            Text("Players: \(viewModel.players.count)")
-                .font(.title2)
-                .padding(.bottom, 5)
+            // Player count information
+            HStack {
+                Text("Players: \(viewModel.players.count)")
+                    .font(.title2)
+                
+                if !viewModel.hasMinimumPlayers {
+                    Text("(Need at least \(viewModel.minPlayers))")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+            }
+            .padding(.bottom, 5)
             
-            // Add player button
-            Button(action: {
-                showNameInput = true
-            }) {
-                Label("Add Player", systemImage: "person.badge.plus")
-                    .padding()
-                    .background(Color.blue.opacity(0.2))
-                    .cornerRadius(10)
+            // Add player buttons
+            HStack(spacing: 15) {
+                // Manual entry
+                Button(action: {
+                    showNameInput = true
+                }) {
+                    Label("Add Player", systemImage: "person.badge.plus")
+                        .padding()
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(10)
+                }
+                
+                // Quick add
+                Button(action: {
+                    withAnimation {
+                        viewModel.addQuickPlayer()
+                    }
+                }) {
+                    Label("Quick Add", systemImage: "bolt")
+                        .padding()
+                        .background(Color.green.opacity(0.2))
+                        .cornerRadius(10)
+                }
             }
             .sheet(isPresented: $showNameInput) {
                 VStack {
@@ -51,7 +75,9 @@ struct SetUpGameView: View {
                         .padding()
                         
                         Button("Add") {
-                            viewModel.addPlayer()
+                            withAnimation {
+                                viewModel.addPlayer()
+                            }
                             showNameInput = false
                         }
                         .padding()
@@ -61,75 +87,116 @@ struct SetUpGameView: View {
                 .padding()
             }
             
-            // Settings
-            VStack(spacing: 15) {
-                // Confirm Buttons
-                HStack {
-                    Spacer()
-                    Button(action: viewModel.defaultRoles) {
-                        Text("Default")
+            // Settings - only visible if showing role counts
+            if viewModel.showRoleCounts {
+                VStack(spacing: 15) {
+                    // Role distribution buttons
+                    HStack {
+                        Spacer()
+                        Button(action: viewModel.defaultRoles) {
+                            Text("Default")
+                                .padding()
+                                .background(Color.green.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+                        
+                        Spacer()
+                        Button(action: viewModel.randomRoles) {
+                            Text("Random")
+                                .padding()
+                                .background(Color.orange.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+                        
+                        Spacer()
+                        Button(action: viewModel.mysteryRoles) {
+                            Text("Mystery")
+                                .padding()
+                                .background(Color.purple.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    // Role counts
+                    Group {
+                        // Mafia
+                        HStack {
+                            Text("Mafia")
+                                .frame(width: 80, alignment: .leading)
+                            
+                            Stepper("\(viewModel.mafiaCount)",
+                                    onIncrement: viewModel.incrementMafia,
+                                    onDecrement: viewModel.decrementMafia)
+                                .padding(.horizontal)
+                                .opacity(viewModel.canIncrementMafia ? 1.0 : 0.6)
+                        }
+                        .padding(.horizontal)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(8)
+                        
+                        // Doctor
+                        HStack {
+                            Text("Doctor")
+                                .frame(width: 80, alignment: .leading)
+                            
+                            Stepper("\(viewModel.doctorCount)",
+                                    onIncrement: viewModel.incrementDoctor,
+                                    onDecrement: viewModel.decrementDoctor)
+                                .padding(.horizontal)
+                                .opacity(viewModel.canIncrementDoctor ? 1.0 : 0.6)
+                        }
+                        .padding(.horizontal)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                        
+                        // Detective
+                        HStack {
+                            Text("Detective")
+                                .frame(width: 80, alignment: .leading)
+                            
+                            Stepper("\(viewModel.detectiveCount)",
+                                    onIncrement: viewModel.incrementDetective,
+                                    onDecrement: viewModel.decrementDetective)
+                                .padding(.horizontal)
+                                .opacity(viewModel.canIncrementDetective ? 1.0 : 0.6)
+                        }
+                        .padding(.horizontal)
+                        .background(Color.yellow.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                }
+                .padding()
+            } else {
+                // Mystery mode message
+                VStack {
+                    Text("Mystery Mode")
+                        .font(.title2)
+                        .padding(.top)
+                    
+                    Text("Roles have been assigned secretly")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: {
+                        viewModel.showRoleCounts = true
+                        viewModel.updateRoleCounts()
+                    }) {
+                        Text("Show Roles")
                             .padding()
-                            .background(Color.green.opacity(0.3))
+                            .background(Color.blue.opacity(0.2))
                             .cornerRadius(8)
                     }
-                    
-                    Spacer()
-                    Button(action: viewModel.randomRoles) {
-                        Text("Random")
-                            .padding()
-                            .background(Color.orange.opacity(0.3))
-                            .cornerRadius(8)
-                    }
-                    
-                    Spacer()
+                    .padding()
                 }
-                
-                // Role counts
-                Group {
-                    // Mafia
-                    HStack {
-                        Text("Mafia")
-                            .frame(width: 80, alignment: .leading)
-                        
-                        Stepper("\(viewModel.mafiaCount)",
-                                onIncrement: viewModel.incrementMafia,
-                                onDecrement: viewModel.decrementMafia)
-                            .padding(.horizontal)
-                    }
-                    .padding(.horizontal)
-                    .background(Color.red.opacity(0.1))
-                    .cornerRadius(8)
-                    
-                    // Doctor
-                    HStack {
-                        Text("Doctor")
-                            .frame(width: 80, alignment: .leading)
-                        
-                        Stepper("\(viewModel.doctorCount)",
-                                onIncrement: viewModel.incrementDoctor,
-                                onDecrement: viewModel.decrementDoctor)
-                            .padding(.horizontal)
-                    }
-                    .padding(.horizontal)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(8)
-                    
-                    // Detective
-                    HStack {
-                        Text("Detective")
-                            .frame(width: 80, alignment: .leading)
-                        
-                        Stepper("\(viewModel.detectiveCount)",
-                                onIncrement: viewModel.incrementDetective,
-                                onDecrement: viewModel.decrementDetective)
-                            .padding(.horizontal)
-                    }
-                    .padding(.horizontal)
-                    .background(Color.yellow.opacity(0.1))
-                    .cornerRadius(8)
-                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.purple.opacity(0.1))
+                )
+                .padding()
             }
-            .padding()
             
             // PlayersView
             ScrollView {
@@ -169,7 +236,7 @@ struct SetUpGameView: View {
                         .fontWeight(.bold)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 30)
-                        .background(Color.green)
+                        .background(viewModel.hasMinimumPlayers ? Color.green : Color.gray)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         .shadow(radius: 3)
@@ -177,8 +244,7 @@ struct SetUpGameView: View {
                 .simultaneousGesture(TapGesture().onEnded { _ in
                     viewModel.startGame()
                 })
-                .disabled(viewModel.players.count < 4)
-                .opacity(viewModel.players.count < 4 ? 0.5 : 1.0)
+                .disabled(!viewModel.hasMinimumPlayers)
                 
                 Spacer()
             }
@@ -186,6 +252,13 @@ struct SetUpGameView: View {
         }
         .navigationTitle("") // Remove extra title
         .navigationBarTitleDisplayMode(.inline)
+        .alert(isPresented: $viewModel.showError) {
+            Alert(
+                title: Text("Error"),
+                message: Text(viewModel.errorMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 }
 

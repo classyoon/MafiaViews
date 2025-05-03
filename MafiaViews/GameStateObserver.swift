@@ -47,6 +47,20 @@ class GameManager: ObservableObject {
         return player
     }
     
+    func populateWithDefaultPlayers(count: Int) {
+        // Clear existing players first
+        game.players.removeAll()
+        
+        // Generate new players with default names
+        for i in 1...count {
+            let player = Player("Player \(i)")
+            game.players.append(player)
+        }
+        
+        // Notify all observers
+        notifyObservers()
+    }
+    
     func removePlayer(_ player: Player) {
         game.players.removeAll { $0.id == player.id }
         notifyObservers()
