@@ -60,17 +60,4 @@ struct DawnView: View {
     DawnView()
         .environmentObject(TransitionViewModel())
 }
-struct TransitionViewRouter: View {
-    @EnvironmentObject var viewModel: TransitionViewModel
-    
-    var body: some View {
-        Group {
-            if viewModel.gameTime == .dusk {
-                DuskView()
-            } else {
-                DawnView()
-            }
-        }
-        .environmentObject(viewModel)
-    }
-}
+
