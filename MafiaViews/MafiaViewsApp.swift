@@ -11,7 +11,9 @@ import SwiftUI
 struct MafiaViewsApp: App {
     var body: some Scene {
         WindowGroup {
-           PlayingView()
+            NavigationStack {
+                MafiaMenuView()
+            }
         }
     }
 }

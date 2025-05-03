@@ -6,20 +6,6 @@
 //
 
 import Foundation
-struct Player : Identifiable {
-    var name : String
-    var role : RoleText
-    var id : UUID = UUID()
-    init(_ name: String = "Default Steve", _ role: RoleText = .townsperson) {
-        self.name = name
-        self.role = role
-    }
-}
-class Game {
-    var time : GameLabelState = .day
-    var currentTeam : TeamText = .mafia
-    var players : [Player] = [Player("Joe"),Player("Sam"), Player("Not Killer", .mafia), Player("Yolo"), Player("Funny")]
-}
 class PlayingViewModel : ObservableObject {
     
     var gameModel : Game = Game()

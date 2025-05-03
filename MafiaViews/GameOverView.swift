@@ -5,68 +5,102 @@
 //  Created by Conner Yoon on 5/2/25.
 //
 
-
-//
-//  GameOverView.swift
-//  MyProject
-//
-//  Designed in DetailsPro
-//  Copyright © (My Organization). All rights reserved.
-//
-
 import SwiftUI
 
 struct GameOverView: View {
+    @StateObject private var viewModel = GameOverViewModel()
+    @State private var navigateToMainMenu = false
+    @State private var navigateToNewGame = false
+    
     var body: some View {
-		VStack {
-			// Title
-			Text("Town Wins")
-				.clipped()
-				.font(.system(size: 90, weight: .bold, design: .monospaced))
-				.padding()
-			// Players
-			ScrollView {
-				VStack {
-					ForEach(0..<5) { _ in // Replace with your data model here
-						// PlayerView
-						HStack {
-							Image("myImage")
-								.renderingMode(.original)
-								.resizable()
-								.aspectRatio(contentMode: .fit)
-								.frame(width: 63)
-								.clipped()
-								.mask { RoundedRectangle(cornerRadius: 44, style: .continuous) }
-								.padding()
-							ZStack {
-								RoundedRectangle(cornerRadius: 10, style: .continuous)
-									.fill(.green)
-									.frame(height: 60)
-									.clipped()
-								Text("John")
-							}
-							Capsule(style: .continuous)
-								.fill(.red)
-								.frame(width: 70, height: 50)
-								.clipped()
-								.padding()
-								.overlay {
-									Text("Town")
-										.foregroundStyle(.primary)
-								}
-						}
-					}
-				}
-			}
-			HStack {
-				Text("Play Again")
-					.padding()
-				Text("Menu")
-					.padding()
-				Text("Play Different")
-					.padding()
-			}
-		}
+        VStack {
+            // Title
+            Text("\(viewModel.winner?.rawValue.capitalized ?? "No one") Wins!")
+                .clipped()
+                .font(.system(size: 60, weight: .bold, design: .monospaced))
+                .padding()
+                .foregroundColor(viewModel.winner == .mafia ? .red : .green)
+            
+            // Players
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(viewModel.players) { player in
+                        // PlayerView
+                        HStack {
+                            PlayerView(player: player.name)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(player.isDead ? .red.opacity(0.2) : .green.opacity(0.2))
+                                    .frame(height: 60)
+                                    .clipped()
+                                
+                                Text(player.isDead ? "Dead" : "Alive")
+                                    .foregroundColor(player.isDead ? .red : .green)
+                                    .font(.headline)
+                            }
+                            
+                            Capsule(style: .continuous)
+                                .fill(player.team == .mafia ? .red : .blue)
+                                .frame(width: 90, height: 50)
+                                .clipped()
+                                .padding()
+                                .overlay {
+                                    Text(player.role.rawValue.capitalized)
+                                        .foregroundStyle(.white)
+                                        .font(.callout)
+                                }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            .padding()
+            
+            // Action buttons
+            HStack(spacing: 20) {
+                Button(action: {
+                    viewModel.playAgain()
+                    navigateToNewGame = true
+                }) {
+                    Text("Play Again")
+                        .padding()
+                        .background(Color.green.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    viewModel.goToMenu()
+                    navigateToMainMenu = true
+                }) {
+                    Text("Menu")
+                        .padding()
+                        .background(Color.blue.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    viewModel.playDifferent()
+                    navigateToNewGame = true
+                }) {
+                    Text("New Game")
+                        .padding()
+                        .background(Color.orange.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+            }
+            .padding(.vertical, 30)
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToMainMenu) {
+            MafiaMenuView()
+        }
+        .navigationDestination(isPresented: $navigateToNewGame) {
+            SetUpGameView()
+        }
     }
 }
 

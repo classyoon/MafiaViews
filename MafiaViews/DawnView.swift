@@ -1,24 +1,21 @@
 //
-//  DuskView.swift
+//  DawnView.swift
 //  MafiaViews
 //
 //  Created by Conner Yoon on 5/3/25.
 //
-
-
-
 import SwiftUI
 
-struct DuskView: View {
+struct DawnView: View {
     @EnvironmentObject var viewModel: TransitionViewModel
     @State private var showNextScreen = false
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.red, Color(.displayP3, red: 15/255, green: 5/255, blue: 56/255)]), startPoint: .bottom, endPoint: .top)
+            LinearGradient(gradient: Gradient(colors: [.blue, .orange]), startPoint: .bottom, endPoint: .top)
             
             VStack {
-                Text("Dusk".uppercased())
+                Text("Dawn".uppercased())
                     .kerning(10.0)
                     .font(.system(.largeTitle, design: .serif, weight: .black))
                     .foregroundColor(.white)
@@ -30,7 +27,7 @@ struct DuskView: View {
                     .multilineTextAlignment(.center)
                     .padding()
                 
-                Text("The night is coming...")
+                Text("A new day begins...")
                     .foregroundColor(.white)
                     .font(.title3)
                     .padding()
@@ -59,11 +56,21 @@ struct DuskView: View {
     }
 }
 
-
-
-
-
 #Preview {
-    DuskView()
+    DawnView()
         .environmentObject(TransitionViewModel())
+}
+struct TransitionViewRouter: View {
+    @EnvironmentObject var viewModel: TransitionViewModel
+    
+    var body: some View {
+        Group {
+            if viewModel.gameTime == .dusk {
+                DuskView()
+            } else {
+                DawnView()
+            }
+        }
+        .environmentObject(viewModel)
+    }
 }
