@@ -12,17 +12,41 @@ Also note that because I'm lazy some things may be missing. Be on your guard for
 >SetUpGameView()
 !There needs to be an actual method to add and subtract players when needed and modify the role distribution!
 [Hits begin]
+>FirstDawnView()
+[Tap]
+>DayView
+!For this first day since nobody has died, there should be no voting!
+[Tap]
 >DuskView()
-!The dusk view is not actually supposed to be the first view but since it is so similiar to the dawn view, I figure they can probably be made in a way that makes less repeition!
+!This will say something like "hand the device to [name of first player alive] turn. They will start"!
 [Tap]
->PlayingView()
-!The notes feature is a bit cramped. I may want to revisit it.!
+>PlayerCoverView
+!This will say something like "it is now [name of next player] turn."!
 [Tap]
+>NightView
+!This will look like day view except dark. There will be no option to skip. Once the player chooses a target and confirms their action it will return to playercoverview until all players have done their turn!
+[Repeat until all players have made their actions]
+>ConfirmNightView()
+!This will allow any redos incase there were any accidents.
+[Confirmed]
+>DawnView()
+[Tap]
+>News !I am not sure how this will be presented!
+[Tap]
+>DiscussionView()
+!There will be a timer!
+>DayView
+Players can choose someone to vote on or they can abstain. Once the player confirms their action it will return to playercoverview until all players have done their turn!
+[Repeat until all players have made their actions]
+>ConfirmVoteView()
+!This is like confirm night view!
+[Confirmed]
+>ResultsView
+!This will inform the players of the execution if it took place and who. Depending on the game settings, it may or may not share the role!
+[Assuming no game over]
 >DuskView()
-[Tap]
->Tranisition view
-I want to have a transition view between player turns.
+[Game loop cycles]
 
-[Game ends]
+[By the end of an execution or night if any team has met their win condition]
 >GameOverView()
 
