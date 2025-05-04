@@ -9,6 +9,7 @@
 
 import SwiftUI
 
+
 struct DuskView: View {
     @EnvironmentObject var viewModel: TransitionViewModel
     @State private var showNextScreen = false
@@ -54,11 +55,16 @@ struct DuskView: View {
         .ignoresSafeArea()
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $showNextScreen) {
-            PlayingView()
+            if viewModel.isFirstNight {
+                // Show special first night view for first round
+                PlayingView()
+            } else {
+                // Show news if this is not the first night
+                NewsView(viewModel: NewsViewModel())
+            }
         }
     }
 }
-
 
 
 

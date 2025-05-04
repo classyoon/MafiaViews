@@ -10,6 +10,13 @@ import SwiftUI
 import Combine
 
 // Protocol for observer pattern to notify changes in game state
+// Update MafiaViews/Busniess/GameStateObserver.swift with pause functionality
+
+import Foundation
+import SwiftUI
+import Combine
+
+// Protocol for observer pattern to notify changes in game state
 protocol GameStateObserver: AnyObject {
     func gameStateDidChange(_ game: Game)
 }
@@ -23,9 +30,33 @@ class GameManager: ObservableObject {
     @Published var gameState: PlayerStage = .start
     @Published var currentPhase: GamePhase = .setup
     
+    // Pause functionality
+    @Published var isPaused: Bool = false
+    var pausedPhase: GamePhase? = nil
+    var currentPlayerId: UUID? = nil
+    
     private var observers = [GameStateObserver]()
     
     private init() {}
+    
+    // MARK: - Pause Functionality
+    
+    func pauseGame() {
+        isPaused = true
+        pausedPhase = currentPhase
+        notifyObservers()
+    }
+    
+    func resumeGame() {
+        isPaused = false
+        pausedPhase = nil
+        notifyObservers()
+    }
+    
+    func setCurrentPlayer(_ playerId: UUID) {
+        currentPlayerId = playerId
+        notifyObservers()
+    }
     
     // MARK: - Game Setup
     
@@ -35,6 +66,9 @@ class GameManager: ObservableObject {
         game.time = .dusk // Start with dusk to transition to night
         gameState = .playing
         currentPhase = .nightTransition
+        
+        // Generate initial game news
+        game.generateStartNews()
         
         // Notify all observers
         notifyObservers()
@@ -132,6 +166,7 @@ class GameManager: ObservableObject {
     func startGame() {
         gameState = .playing
         currentPhase = .nightTransition
+        game.time = .dusk
         advancePhase()
     }
     
@@ -145,12 +180,16 @@ class GameManager: ObservableObject {
             currentPhase = .night
             game.time = .night
             resetPlayerActions()
+            // Generate night flavor text
+            game.generateNightFlavor()
             
         case .night:
             // Process night actions
             processNightActions()
             currentPhase = .dayTransition
             game.time = .dawn
+            // Generate news about night events
+            game.generateNightNews()
             
         case .dayTransition:
             currentPhase = .day
@@ -162,6 +201,8 @@ class GameManager: ObservableObject {
             processDayVoting()
             currentPhase = .nightTransition
             game.time = .dusk
+            // Generate news about execution
+            game.generateExecutionNews()
             
         case .endGame:
             gameState = .ended
@@ -206,6 +247,9 @@ class GameManager: ObservableObject {
         game.players[playerIndex].target = target.id
         game.players[playerIndex].hasActed = true
         
+        // Set current player ID for pause functionality
+        currentPlayerId = currentPlayer.id
+        
         // Check if all players have acted
         checkAllPlayersActed()
     }
@@ -215,6 +259,9 @@ class GameManager: ObservableObject {
               !player.isDead else { return }
         
         game.players[playerIndex].hasActed = true
+        
+        // Set current player ID for pause functionality
+        currentPlayerId = player.id
         
         // Check if all players have acted
         checkAllPlayersActed()
@@ -297,6 +344,8 @@ class GameManager: ObservableObject {
                 game.players[index].isDead = true
                 game.lastExecuted = playerId
             }
+        } else {
+            game.lastExecuted = nil
         }
     }
     
@@ -322,6 +371,9 @@ class GameManager: ObservableObject {
         game = Game()
         gameState = .start
         currentPhase = .setup
+        isPaused = false
+        pausedPhase = nil
+        currentPlayerId = nil
         notifyObservers()
     }
 }

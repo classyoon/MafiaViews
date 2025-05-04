@@ -217,7 +217,7 @@ class SetUpGameViewModel: ObservableObject, GameStateObserver {
 
 // Playing view model that extends your existing PlayingViewModel
 class EnhancedPlayingViewModel: ObservableObject, GameStateObserver {
-    private let gameManager = GameManager.shared
+    let gameManager = GameManager.shared
     
     @Published var game: Game
     @Published var currentPlayerIndex: Int = 0
@@ -424,9 +424,11 @@ class TransitionViewModel: ObservableObject {
     
     @Published var gameTime: GameLabelState
     @Published var message: String = ""
+    @Published var isFirstNight: Bool = false
     
     init() {
         self.gameTime = gameManager.game.time
+        self.isFirstNight = gameManager.isFirstNight
         
         // Set message based on game state
         if gameTime == .dawn {
@@ -437,23 +439,37 @@ class TransitionViewModel: ObservableObject {
                 message = "Nobody was executed today."
             }
         } else if gameTime == .dusk {
-            let killedPlayers = gameManager.game.players.filter {
-                $0.isDead && gameManager.game.lastExecuted != $0.id
-            }
-            
-            if killedPlayers.isEmpty {
-                message = "Everyone survived the night."
-            } else if killedPlayers.count == 1 {
-                message = "\(killedPlayers[0].name) was killed during the night."
+            if isFirstNight {
+                message = "Night falls for the first time. The Mafia is on the move."
             } else {
-                let names = killedPlayers.map { $0.name }.joined(separator: ", ")
-                message = "\(names) were killed during the night."
+                let killedPlayers = gameManager.game.players.filter {
+                    $0.isDead && gameManager.game.lastExecuted != $0.id
+                }
+                
+                if killedPlayers.isEmpty {
+                    message = "Everyone survived the night."
+                } else if killedPlayers.count == 1 {
+                    message = "\(killedPlayers[0].name) was killed during the night."
+                } else {
+                    let names = killedPlayers.map { $0.name }.joined(separator: ", ")
+                    message = "\(names) were killed during the night."
+                }
             }
         }
     }
     
     func continueGame() {
         gameManager.advancePhase()
+    }
+}
+
+// Update GameManager.swift to add isFirstNight functionality
+// Add this property and method to the GameManager class
+
+extension GameManager {
+    var isFirstNight: Bool {
+        // Consider it the first night if we're in the first night transition and no players are dead
+        return currentPhase == .nightTransition && !game.players.contains(where: { $0.isDead })
     }
 }
 

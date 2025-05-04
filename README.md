@@ -1,52 +1,94 @@
-#  MafiaViews
-So this is intended to be the project where I put together the mafia game views. I am trying to focus on making the view functional and encapsulated then I will take the busniess logic.
+# MafiaViews
 
-It should go like this. Note i am not aware of any official notation so I will include any user action in brackets. and then I will start any view with > and then a , if it is within any views then a : to end it. If there are () then that means there is a file with the visual codes on.
-Exclamation marks mean something should be changed that isn't.
+A SwiftUI implementation of the Mafia party game for iOS devices. This project focuses on creating an engaging and easy-to-use interface for playing Mafia with friends.
 
-Also note that because I'm lazy some things may be missing. Be on your guard for missing stuff or details.
+## Game Flow
 
+The game follows this sequence:
+
+1. **Setup Phase**
+   - Players are added
+   - Roles are assigned (Mafia, Doctor, Detective, Townspeople)
+
+2. **Game Loop**
+   - **First Night**: Players discover their roles
+   - **Day Phase**: 
+     - News is presented about night events
+     - Discussion period with timer
+     - Voting to eliminate a suspect
+     - Execution results shown
+   - **Night Phase**:
+     - Players take individual actions based on their roles
+     - Mafia kill, Doctors protect, Detectives investigate
+   - The loop continues until win conditions are met
+
+3. **Game Over**
+   - Mafia wins if they equal or outnumber the townspeople
+   - Town wins if all mafia members are eliminated
+
+## Navigation Flow
+
+```
 [Opens App]
->MafiaMenuView()
-[Hits play]
->SetUpGameView()
-!There needs to be an actual method to add and subtract players when needed and modify the role distribution!
-[Hits begin]
->FirstDawnView()
-[Tap]
->DayView
-!For this first day since nobody has died, there should be no voting!
-[Tap]
->DuskView()
-!This will say something like "hand the device to [name of first player alive] turn. They will start"!
-[Tap]
->PlayerCoverView
-!This will say something like "it is now [name of next player] turn."!
-[Tap]
->NightView
-!This will look like day view except dark. There will be no option to skip. Once the player chooses a target and confirms their action it will return to playercoverview until all players have done their turn!
-[Repeat until all players have made their actions]
->ConfirmNightView()
-!This will allow any redos incase there were any accidents.
-[Confirmed]
->DawnView()
-[Tap]
->News !I am not sure how this will be presented!
-[Tap]
->DiscussionView()
-!There will be a timer!
->DayView
-Players can choose someone to vote on or they can abstain. Once the player confirms their action it will return to playercoverview until all players have done their turn!
-[Repeat until all players have made their actions]
->ConfirmVoteView()
-!This is like confirm night view!
-[Confirmed]
->ResultsView
-!This will inform the players of the execution if it took place and who. Depending on the game settings, it may or may not share the role!
-[Assuming no game over]
->DuskView()
-[Game loop cycles]
+> MafiaMenuView()
+  [Hits play]
+  > SetUpGameView()
+    [Hits begin]
+    > DuskView()
+      [Tap]
+      > PlayingView (Night phase)
+        [Each player takes their turn]
+        > DawnView()
+          [Tap]
+          > NewsView
+            [Tap]
+            > DiscussionView()
+              [Timer ends or Skip pressed]
+              > PlayingView (Day phase - voting)
+                [All players vote]
+                > DuskView()
+                  [Game loop continues...]
+                  
+[At any point]
+> PauseView
+  [Resume/Restart options]
+  
+[When win condition met]
+> GameOverView()
+```
 
-[By the end of an execution or night if any team has met their win condition]
->GameOverView()
+## Features
 
+- **News System**: Reports game events with thematic text
+- **Role-Based Actions**: Different interfaces based on player role
+- **Pause Functionality**: Pause and resume game at any point
+- **Day/Night Cycle**: Visual transitions between game phases
+- **Discussion Timer**: Timed discussion phase
+- **Voting System**: Town voting mechanism
+- **Notes**: Personal notes for each player
+- **Win Detection**: Automatically detects when a team has won
+
+## Code Organization
+
+- **AppSection**: Core app components
+- **Mafia Game**: Game play views
+- **MetaGame**: Setup, menu, and non-game components
+- **Business**: Data models and game logic
+- **Player SubView**: Reusable player UI components
+- **Game**: Core game flow views
+- **JSON**: JSON handling and data structures
+
+## Technical Implementation
+
+- **Observer Pattern**: Game state observers to update UI
+- **MVVM Architecture**: View models handle business logic
+- **Singleton Game Manager**: Central game state management
+- **SwiftUI Navigation API**: For view transitions
+
+## Future Enhancements
+
+- Online multiplayer
+- Custom roles and special abilities
+- Game statistics and history
+- Themes and customization
+- Sound effects and music

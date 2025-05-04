@@ -14,6 +14,10 @@
 //
 
 import Foundation
+// 1. First, let's enhance the Game model to include news functionality
+// Add to MafiaViews/Busniess/GameModels.swift
+
+import Foundation
 
 struct Player: Identifiable {
     var name: String
@@ -46,7 +50,76 @@ class Game {
     var players: [Player] = []
     var winner: TeamText? = nil
     var lastExecuted: UUID? = nil
-    var investigationResults: [UUID: RoleText] = [:] // Mapping detective ID to target's role
+    var investigationResults: [UUID: RoleText] = [:]
+    
+    // News related properties
+    var news: String = ""
+    var nightFlavor: String = ""
+    var gameText: GameText? = nil
+    
+    init() {
+        loadGameText()
+        generateStartNews()
+    }
+    
+    // Load game text from JSON
+    private func loadGameText() {
+        gameText = loadFlavorText()
+    }
+    
+    // Generate game start news
+    func generateStartNews() {
+        if let text = gameText?.gameStart.randomElement() {
+            news = text
+        } else {
+            news = "Welcome to Mafia. The game begins."
+        }
+    }
+    
+    // Generate night flavor text
+    func generateNightFlavor() {
+        if let text = gameText?.night.randomElement() {
+            nightFlavor = text
+        } else {
+            nightFlavor = "Night falls on the town."
+        }
+    }
+    
+    // Generate news about what happened during the night
+    func generateNightNews() {
+        let killedPlayers = players.filter { $0.isDead && lastExecuted != $0.id }
+        
+        if killedPlayers.isEmpty {
+            if let text = gameText?.nothingHappen.randomElement() {
+                news = text
+            } else {
+                news = "Nothing happened during the night."
+            }
+        } else {
+            if let murderText = gameText?.murder.randomElement() {
+                // Replace placeholder with actual player name if present
+                var newsText = murderText
+                if murderText.contains("{{Dead}}") {
+                    let deadName = killedPlayers.first?.name ?? "Someone"
+                    newsText = murderText.replacingOccurrences(of: "{{Dead}}", with: deadName)
+                }
+                news = newsText
+            } else {
+                let names = killedPlayers.map { $0.name }.joined(separator: ", ")
+                news = "\(names) was killed during the night."
+            }
+        }
+    }
+    
+    // Generate news about execution
+    func generateExecutionNews() {
+        if let executedId = lastExecuted,
+           let executedPlayer = players.first(where: { $0.id == executedId }) {
+            news = "The town has decided to execute \(executedPlayer.name)."
+        } else {
+            news = "The town couldn't reach a decision. No one was executed."
+        }
+    }
     
     // Get players for the current player to see based on their role
     func visiblePlayers(for currentPlayer: Player) -> [Player] {

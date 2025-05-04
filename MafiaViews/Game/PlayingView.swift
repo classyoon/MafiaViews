@@ -6,6 +6,8 @@
 //  Updated with enhanced functionality
 //
 
+// Update MafiaViews/Game/PlayingView.swift to include pause functionality
+
 import SwiftUI
 
 struct PlayingView: View {
@@ -13,6 +15,7 @@ struct PlayingView: View {
     
     @State private var playerNotes: String = ""
     @State private var showConfirmationDialog = false
+    @State private var showPauseView = false
     
     var headerText: String {
         guard let player = viewModel.currentPlayer else {
@@ -148,10 +151,20 @@ struct PlayingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    viewModel.pauseGame()
+                    showPauseView = true
+                }) {
+                    Image(systemName: "pause.circle.fill")
+                        .font(.title)
+                }
+            }
+        }
         .navigationDestination(isPresented: $viewModel.showTransition) {
             if viewModel.time == .dawn {
-                DawnView()
-                    .environmentObject(TransitionViewModel())
+                NewsView(viewModel: NewsViewModel())
             } else {
                 DuskView()
                     .environmentObject(TransitionViewModel())
@@ -159,6 +172,9 @@ struct PlayingView: View {
         }
         .navigationDestination(isPresented: $viewModel.gameEnded) {
             GameOverView()
+        }
+        .sheet(isPresented: $showPauseView) {
+            PauseView()
         }
         .overlay {
             if showConfirmationDialog, let player = viewModel.selectedPlayer {
@@ -189,6 +205,14 @@ struct PlayingView: View {
     }
 }
 
-#Preview {
-    PlayingView()
+// Update EnhancedPlayingViewModel to include pause functionality
+
+extension EnhancedPlayingViewModel {
+    func pauseGame() {
+        gameManager.pauseGame()
+        // Save current player ID
+        if let player = currentPlayer {
+            gameManager.setCurrentPlayer(player.id)
+        }
+    }
 }

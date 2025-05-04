@@ -51,7 +51,7 @@ struct DawnView: View {
         .ignoresSafeArea()
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $showNextScreen) {
-            PlayingView()
+            NewsView(viewModel: NewsViewModel())
         }
     }
 }

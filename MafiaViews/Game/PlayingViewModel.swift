@@ -4,88 +4,163 @@
 //
 //  Created by Conner Yoon on 4/21/25.
 //
+// Add this to MafiaViews/Game/PauseViewModel.swift
 
 import Foundation
-class PlayingViewModel : ObservableObject {
+import SwiftUI
+
+class PauseViewModel: ObservableObject, GameStateObserver {
+    private let gameManager = GameManager.shared
     
-    var gameModel : Game = Game()
-    var playerInt : Int? = 1
-    var player : Player? {
-        gameModel.players[playerInt ?? 0]
+    @Published var players: [Player] = []
+    @Published var currentPlayerName: String = ""
+    @Published var navigateToMenu = false
+    @Published var resumeGame = false
+    
+    init() {
+        gameManager.addObserver(self)
+        self.players = gameManager.game.players
+        updateCurrentPlayer()
     }
-    var showPlayers: [Player] {
-        gameModel.players.filter { $0.id != player?.id ?? UUID() }
+    
+    deinit {
+        gameManager.removeObserver(self)
     }
-    var time : GameLabelState {
-        gameModel.time
-    }
-    var timeText : String {
-        gameModel.time.rawValue
-    }
-    var roleText : String {
-        switch player?.role {
-        case .mafia:
-            TeamText.mafia.rawValue
-        case .detective, .doctor, .townsperson:
-            TeamText.townsfolk.rawValue
-        case nil:
-            "No TEAM"
+    
+    func gameStateDidChange(_ game: Game) {
+        DispatchQueue.main.async {
+            self.players = game.players
+            self.updateCurrentPlayer()
         }
     }
-    var instructions : String {
-        switch player?.role {
-        case .mafia:
-            "Kill off the townsfolk without being caught"
-        case .detective, .doctor, .townsperson:
-            "Catch the mafia before they kill everyone"
-        case nil:
-            "No TEAM Text"
-        }
-    }
-    var role : RoleText? {
-        player?.role
-    }
-    var rolePowers : String {
-        if gameModel.time == .day {
-            "Pick someone to vote to eliminate or abstain."
-        }
-        else {
-            switch role {
-            case .mafia:
-                "Whoever you pick, you will kill unless they are saved"
-            case .townsperson:
-                "You have no powers. Visiting has no affect."
-            case .detective:
-                "Whoever you pick you learn the role of"
-            case .doctor:
-                "Whoever you pick you will be protected"
-            case nil :
-                "No action"
+    
+    private func updateCurrentPlayer() {
+        if let currentPhase = gameManager.pausedPhase {
+            switch currentPhase {
+            case .night, .day:
+                if let currentPlayerId = gameManager.currentPlayerId,
+                   let player = players.first(where: { $0.id == currentPlayerId }) {
+                    currentPlayerName = player.name
+                } else {
+                    currentPlayerName = "next player"
+                }
+            default:
+                currentPlayerName = "next player"
             }
+        } else {
+            currentPlayerName = "next player"
         }
     }
-    var actionText : String {
-        if gameModel.time == .day {
-            "Vote"
-        }else {
-            switch role {
-            case .mafia:
-                "Kill"
-            case .townsperson:
-                "Visit"
-            case .detective:
-                "Investigate"
-            case .doctor:
-                "Protect"
-            case nil :
-                "No action text"
+    
+    func resume() {
+        gameManager.resumeGame()
+        resumeGame = true
+    }
+    
+    func goToMainMenu() {
+        navigateToMenu = true
+    }
+    
+    func restartGame() {
+        // First navigate to menu to avoid transition issues
+        navigateToMenu = true
+        // Then reset game
+        gameManager.resetGame()
+    }
+}
+
+// Update PauseView.swift to use the ViewModel
+
+import SwiftUI
+
+struct PauseView: View {
+    @StateObject private var viewModel = PauseViewModel()
+    @Environment(\.presentationMode) var presentationMode
+    @State private var navigateToMenu = false
+    
+    var body: some View {
+        VStack {
+            // Title
+            Text("Paused")
+                .font(.system(size: 40, weight: .bold, design: .monospaced))
+                .padding()
+            
+            Text("It will be \(viewModel.currentPlayerName)'s turn")
+                .font(.title3)
+            
+            Divider()
+            
+            // Players list
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(viewModel.players) { player in
+                        HStack {
+                            PlayerView(player: player.name)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(player.isDead ? Color.red.opacity(0.2) : Color.green.opacity(0.2))
+                                    .frame(height: 60)
+                                
+                                HStack {
+                                    Text(player.name)
+                                        .fontWeight(.medium)
+                                    
+                                    Spacer()
+                                    
+                                    Text(player.isDead ? "Dead" : "Alive")
+                                        .foregroundColor(player.isDead ? .red : .green)
+                                        .font(.caption)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(player.isDead ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                                        )
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
             }
+            
+            Spacer()
+            
+            // Action buttons
+            HStack(spacing: 20) {
+                Button(action: {
+                    viewModel.resume()
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Resume")
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 120)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    viewModel.restartGame()
+                    navigateToMenu = true
+                }) {
+                    Text("Restart Game")
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 120)
+                        .background(Color.orange)
+                        .cornerRadius(10)
+                }
+            }
+            .padding(.bottom, 30)
         }
-    }
-    init(time: GameLabelState = .night,  gameModel: Game = Game(), playerInt: Int? = nil) {
-        self.gameModel = gameModel
-        self.playerInt = playerInt
-        gameModel.time = time
-       
+        .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToMenu) {
+            MafiaMenuView()
+        }
     }
 }
