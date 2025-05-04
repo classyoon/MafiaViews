@@ -1,33 +1,12 @@
 //
-//  ViewModels.swift
+//  SetUpGameViewModel.swift
 //  MafiaViews
 //
-//  Created on 5/2/25.
+//  Created by Conner Yoon on 5/3/25.
 //
 
+
 import Foundation
-import SwiftUI
-import Combine
-
-// Main menu view model
-class MafiaMenuViewModel: ObservableObject {
-    @Published var navigateToSetup = false
-    @Published var navigateToCredits = false
-    @Published var navigateToStore = false
-    
-    func startGame() {
-        navigateToSetup = true
-    }
-    
-    func showCredits() {
-        navigateToCredits = true
-    }
-    
-    func showStore() {
-        navigateToStore = true
-    }
-}
-
 // Setup game view model
 class SetUpGameViewModel: ObservableObject, GameStateObserver {
     private let gameManager = GameManager.shared
@@ -212,130 +191,5 @@ class SetUpGameViewModel: ObservableObject, GameStateObserver {
         doctorCount = players.filter { $0.role == .doctor }.count
         detectiveCount = players.filter { $0.role == .detective }.count
         showRoleCounts = true
-    }
-}
-
-
-
-// Game over view model
-class GameOverViewModel: ObservableObject {
-    private let gameManager = GameManager.shared
-    
-    @Published var winner: TeamText?
-    @Published var players: [Player] = []
-    @Published var navigateToMenu = false
-    @Published var navigateToNewGame = false
-    
-    init() {
-        self.winner = gameManager.game.winner
-        self.players = gameManager.game.players
-    }
-    
-    func playAgain() {
-        let oldPlayers = gameManager.game.players.map {
-            var player = $0
-            player.isDead = false
-            player.hasActed = false
-            player.target = nil
-            player.notes = ""
-            return player
-        }
-        
-        gameManager.resetGame()
-        
-        // Restore players without their state
-        for player in oldPlayers {
-            _ = gameManager.addPlayer(name: player.name)
-        }
-        
-        navigateToNewGame = true
-    }
-    
-    func goToMenu() {
-        gameManager.resetGame()
-        navigateToMenu = true
-    }
-    
-    func playDifferent() {
-        gameManager.resetGame()
-        navigateToNewGame = true
-    }
-}
-
-// Transition view model
-class TransitionViewModel: ObservableObject {
-    private let gameManager = GameManager.shared
-    
-    @Published var gameTime: GameLabelState
-    @Published var message: String = ""
-    @Published var isFirstNight: Bool = false
-    
-    init() {
-        self.gameTime = gameManager.game.time
-        self.isFirstNight = gameManager.isFirstNight
-        
-        // Set message based on game state
-        if gameTime == .dawn {
-            if let lastExecuted = gameManager.game.lastExecuted,
-               let player = gameManager.game.players.first(where: { $0.id == lastExecuted }) {
-                message = "\(player.name) was executed by the town."
-            } else {
-                message = "Nobody was executed today."
-            }
-        } else if gameTime == .dusk {
-            if isFirstNight {
-                message = "Night falls for the first time. The Mafia is on the move."
-            } else {
-                let killedPlayers = gameManager.game.players.filter {
-                    $0.isDead && gameManager.game.lastExecuted != $0.id
-                }
-                
-                if killedPlayers.isEmpty {
-                    message = "Everyone survived the night."
-                } else if killedPlayers.count == 1 {
-                    message = "\(killedPlayers[0].name) was killed during the night."
-                } else {
-                    let names = killedPlayers.map { $0.name }.joined(separator: ", ")
-                    message = "\(names) were killed during the night."
-                }
-            }
-        }
-    }
-    
-    func continueGame() {
-        gameManager.advancePhase()
-    }
-}
-
-// Update GameManager.swift to add isFirstNight functionality
-// Add this property and method to the GameManager class
-
-extension GameManager {
-    var isFirstNight: Bool {
-        // Consider it the first night if we're in the first night transition and no players are dead
-        return currentPhase == .nightTransition && !game.players.contains(where: { $0.isDead })
-    }
-}
-
-// Confirmation vote view model
-class ConfirmVoteViewModel: ObservableObject {
-    var playerName: String
-    var action: String
-    var onConfirm: () -> Void
-    var onCancel: () -> Void
-    
-    init(playerName: String, action: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
-        self.playerName = playerName
-        self.action = action
-        self.onConfirm = onConfirm
-        self.onCancel = onCancel
-    }
-    
-    func confirm() {
-        onConfirm()
-    }
-    
-    func cancel() {
-        onCancel()
     }
 }
